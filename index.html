@@ -60,6 +60,15 @@
         });
     });
 </script>
+
+
+// Force mobile browser to start at the very top on refresh
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}
+window.scrollTo(0, 0);
+    
 </body>
 
 </html>
+
