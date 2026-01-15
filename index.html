@@ -4,9 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>A Romantic Journey</title>
-    <link rel="stylesheet" href="style.css?v=1.3">
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css?v=1.5">
 </head>
 <body>
+
+    <div id="particle-container"></div>
 
     <audio id="bg-music" loop>
         <source src="music.mp3" type="audio/mpeg">
@@ -14,10 +17,10 @@
 
     <section id="start-page" class="panel active start-bg">
         <div class="content-box">
-            <h1 class="romantic-text">A Special Message Awaits</h1>
-            <p>Turn up your volume for the best experience.</p>
+            <h1 class="cursive">For My Queen...</h1>
+            <p>Every page is a piece of my heart.</p>
             <div class="nav-links">
-                <button class="start-btn" onclick="startJourney()">Click to Start</button>
+                <button class="start-btn" onclick="startJourney()">Begin the Journey</button>
             </div>
         </div>
     </section>
@@ -25,7 +28,7 @@
     <section id="int1" class="panel bg-1">
         <div class="content-box">
             <div class="nav-links">
-                <button onclick="nextPage('int2')">Open Letter →</button>
+                <button onclick="nextPage('int2')">Next →</button>
             </div>
         </div>
     </section>
@@ -34,7 +37,7 @@
         <div class="content-box">
             <div class="nav-links">
                 <button onclick="nextPage('int1')">← Back</button>
-                <button onclick="nextPage('int3')">Next →</button>
+                <button onclick="nextPage('int3')">Continue →</button>
             </div>
         </div>
     </section>
@@ -43,7 +46,7 @@
         <div class="content-box">
             <div class="nav-links">
                 <button onclick="nextPage('int2')">← Back</button>
-                <button onclick="nextPage('int4')">Next →</button>
+                <button onclick="nextPage('int4')">Final page →</button>
             </div>
         </div>
     </section>
@@ -52,39 +55,59 @@
         <div class="content-box">
             <div class="nav-links">
                 <button onclick="nextPage('int3')">← Back</button>
+                <button onclick="nextPage('start-page')">Go back to start page</button>
             </div>
         </div>
     </section>
 
     <script>
         const music = document.getElementById('bg-music');
+        const particleContainer = document.getElementById('particle-container');
 
         // Function to start music and move to first interface
         function startJourney() {
-            music.play().catch(e => console.log("Audio play failed"));
+            music.play().catch(e => console.log("Audio enabled"));
             nextPage('int1');
         }
 
-        // Particle Generator
+        // --- PARTICLE EFFECT SYSTEM ---
         function createParticle() {
-            const symbols = ['✨', '💖', '⭐', '🌸'];
+            const symbols = ['✨', '💖', '🌸', '🤍', '⭐'];
             const particle = document.createElement('div');
+            
             particle.className = 'particle';
             particle.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+            
+            // Random horizontal start position
             particle.style.left = Math.random() * 100 + 'vw';
-            particle.style.fontSize = (Math.random() * 10 + 10) + 'px';
-            particle.style.animationDuration = (Math.random() * 2 + 3) + 's';
-            document.body.appendChild(particle);
-            setTimeout(() => { particle.remove(); }, 4000);
-        }
-        setInterval(createParticle, 500);
+            
+            // Random size for variety
+            const size = (Math.random() * 15 + 12) + 'px';
+            particle.style.fontSize = size;
+            
+            // Random duration for natural feel
+            const duration = (Math.random() * 3 + 4) + 's';
+            particle.style.animationDuration = duration;
 
-        // Navigation Logic
+            particleContainer.appendChild(particle);
+
+            // Remove particle after it finishes floating up
+            setTimeout(() => {
+                particle.remove();
+            }, 6000);
+        }
+
+        // Create particles continuously
+        setInterval(createParticle, 400);
+
+        // --- NAVIGATION SYSTEM ---
         function nextPage(pageId) {
             const current = document.querySelector('.panel.active');
+            
+            // Fade & Blur Exit Effect
             current.style.opacity = '0';
-            current.style.transform = 'scale(1.1)';
-            current.style.filter = 'blur(10px)';
+            current.style.transform = 'scale(1.05)';
+            current.style.filter = 'blur(15px)';
 
             setTimeout(() => {
                 current.classList.remove('active');
@@ -94,7 +117,7 @@
                 const next = document.getElementById(pageId);
                 next.classList.add('active');
                 next.style.opacity = '1';
-            }, 800);
+            }, 1000);
         }
     </script>
 </body>
