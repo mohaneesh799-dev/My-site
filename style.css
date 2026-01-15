@@ -8,110 +8,38 @@ body, html {
     height: 100%;
     width: 100%;
     overflow: hidden;
-    background-color: #000;
+    background-color: #1a0f0a;
+    position: relative;
 }
 
-/* Panel Setup */
-.panel {
-    position: absolute;
+/* --- PARTICLE ENGINE CSS --- */
+#particle-container {
+    position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    display: none; /* Hidden by default */
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    background-size: contain;
-    background-position: center;
-    background-repeat: no-repeat;
-    transition: opacity 0.8s ease, transform 0.8s ease, filter 0.8s ease;
-    opacity: 0;
+    pointer-events: none; /* Allows clicking through particles to the buttons */
+    z-index: 10; /* Above background, below buttons */
 }
 
-.panel.active {
-    display: flex; /* Show only active panel */
-    opacity: 1;
-}
-
-/* Backgrounds */
-.bg-1 { background-image: url('image1.jpg'); }
-.bg-2 { background-image: url('image2.jpg'); }
-.bg-3 { background-image: url('image3.jpg'); }
-.bg-4 { background-image: url('image4.jpg'); }
-
-/* Content Box */
-.content-box {
-    width: 85%;
-    margin-bottom: 50px;
-    padding: 25px;
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(10px);
-    border-radius: 20px;
-    text-align: center;
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-}
-
-/* Romantic Buttons */
-.nav-links button {
-    border: none;
-    color: white;
-    font-weight: bold;
-    padding: 12px 25px;
-    border-radius: 30px;
-    background: linear-gradient(45deg, #8b0000, #ff4d4d);
-    cursor: pointer;
-    font-family: inherit;
-    animation: pulseHeart 2s infinite;
-    margin: 5px;
-}
-
-@keyframes pulseHeart {
-    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0.7); }
-    70% { transform: scale(1.05); box-shadow: 0 0 0 10px rgba(255, 77, 77, 0); }
-    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 77, 77, 0); }
-}
-
-/* Particles */
 .particle {
     position: absolute;
+    bottom: -50px; /* Start just below the screen */
     pointer-events: none;
-    z-index: 100;
-    animation: drift 4s linear forwards;
+    opacity: 0;
+    animation: driftUp linear forwards;
+    text-shadow: 0 0 5px rgba(255, 182, 193, 0.5);
 }
 
-@keyframes drift {
-    0% { transform: translateY(0); opacity: 1; }
-    100% { transform: translateY(-100vh); opacity: 0; }
+@keyframes driftUp {
+    0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+    20% { opacity: 0.8; }
+    80% { opacity: 0.8; }
+    100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
 }
 
-
-
-/* ... Keep your previous CSS and add/update these lines ... */
-
-/* Entry Page Background (Choose a color or image) */
-.start-bg {
-    background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('Gemini_Generated_Image_goke8goke8goke8g.jpg');
-    background-size: cover;
-}
-
-.romantic-text {
-    font-family: 'Georgia', serif;
-    font-style: italic;
-    font-size: 2rem;
-    margin-bottom: 10px;
-    color: #ffb6c1; /* Soft Pink */
-}
-
-/* Specific styling for the big start button */
-.start-btn {
-    font-size: 1.2rem !important;
-    padding: 15px 40px !important;
-    background: linear-gradient(45deg, #ff4d4d, #8b0000) !important;
-    border: 2px solid white !important;
-}
-
+/* --- PANEL SYSTEM --- */
 .panel {
     position: absolute;
     top: 0;
@@ -120,16 +48,89 @@ body, html {
     height: 100%;
     display: none;
     flex-direction: column;
-    justify-content: center; /* Center the start button */
+    justify-content: flex-end;
     align-items: center;
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    transition: opacity 0.8s ease, transform 0.8s ease, filter 0.8s ease;
+    transition: opacity 1s ease, transform 1s ease, filter 1s ease;
     opacity: 0;
+    z-index: 5;
+    animation: backgroundBreathe 12s infinite alternate ease-in-out;
 }
 
-/* Ensure Interface 1-4 keep content at bottom */
-#int1, #int2, #int3, #int4 {
-    justify-content: flex-end;
+@keyframes backgroundBreathe {
+    from { transform: scale(1); }
+    to { transform: scale(1.04); }
 }
+
+.panel.active { display: flex; opacity: 1; }
+
+/* Backgrounds */
+.start-bg { 
+    background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('Gemini_Generated_Image_goke8goke8goke8g.jpg'); 
+    background-size: cover; 
+    justify-content: center !important; 
+}
+.bg-1 { background-image: url('image1.jpg'); }
+.bg-2 { background-image: url('image2.jpg'); }
+.bg-3 { background-image: url('image3.jpg'); }
+.bg-4 { background-image: url('image4.jpg'); }
+
+/* --- ROMANTIC STYLING --- */
+.cursive {
+    font-family: 'Great Vibes', cursive;
+    font-size: 3.2rem;
+    color: #ffd1dc;
+    text-shadow: 0 0 15px rgba(255, 182, 193, 0.8);
+    margin-bottom: 5px;
+}
+
+p {
+    font-family: 'Playfair Display', serif;
+    color: #ffffff;
+    font-size: 1.1rem;
+    margin-bottom: 25px;
+    opacity: 0.9;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+}
+
+.content-box {
+    width: 88%;
+    margin-bottom: 60px;
+    padding: 35px 20px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-radius: 30px;
+    text-align: center;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+    z-index: 20; /* Keep text and buttons on top */
+}
+
+/* --- BUTTON STYLING --- */
+button {
+    border: none;
+    color: white;
+    padding: 16px 35px;
+    border-radius: 50px;
+    background: linear-gradient(45deg, #b00000, #ff5e5e);
+    font-weight: bold;
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    cursor: pointer;
+    box-shadow: 0 8px 20px rgba(176, 0, 0, 0.5);
+    animation: heartPulse 2.5s infinite;
+    transition: 0.3s;
+}
+
+@keyframes heartPulse {
+    0% { transform: scale(1); }
+    10% { transform: scale(1.08); }
+    20% { transform: scale(1); }
+    30% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+}
+
+button:active { transform: scale(0.9); }
