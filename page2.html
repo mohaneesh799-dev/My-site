@@ -13,5 +13,50 @@
             <a href="page3.html">Next →</a>
         </div>
     </div>
+
+     <script>
+    // 1. Particle Generator (Hearts and Sparkles)
+    function createParticle() {
+        const symbols = ['✨', '💖', '⭐', '🌸', '✨'];
+        const particle = document.createElement('div');
+        particle.className = 'particle';
+        particle.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+        
+        // Random horizontal position
+        particle.style.left = Math.random() * 100 + 'vw';
+        // Random size
+        particle.style.fontSize = (Math.random() * 10 + 10) + 'px';
+        // Random duration
+        particle.style.animationDuration = (Math.random() * 2 + 3) + 's';
+        
+        document.body.appendChild(particle);
+
+        // Remove from DOM after animation
+        setTimeout(() => {
+            particle.remove();
+        }, 4000);
+    }
+
+    // Create a new sparkle every 500ms
+    setInterval(createParticle, 500);
+
+    // 2. Smooth Romantic Page Transition
+    document.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            let target = this.href;
+
+            document.body.style.transition = "opacity 0.8s ease-out, transform 0.8s ease-out, filter 0.8s ease-out";
+            document.body.style.opacity = "0";
+            document.body.style.transform = "scale(1.1)"; // Zoom in effect on exit
+            document.body.style.filter = "blur(10px)";
+
+            setTimeout(() => {
+                window.location.href = target;
+            }, 800);
+        });
+    });
+</script>
 </body>
+
 </html>
