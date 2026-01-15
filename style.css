@@ -1,0 +1,70 @@
+/* General Reset */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body, html {
+    height: 100%;
+    width: 100%;
+    overflow: hidden; /* Prevents scrolling on individual pages */
+    font-family: 'serif';
+}
+
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Puts content at the bottom to see the art */
+    align-items: center;
+    background-color: #1a0f0a; /* Fills gaps if image ratio differs */
+    
+    /* This makes the image fit perfectly without cropping */
+    background-size: contain; 
+    background-position: center;
+    background-repeat: no-repeat;
+    
+    /* Animation for page entry */
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Specific Backgrounds */
+.bg-1 { background-image: url('image1.jpg'); }
+.bg-2 { background-image: url('image2.jpg'); }
+.bg-3 { background-image: url('image3.jpg'); }
+.bg-4 { background-image: url('image4.jpg'); }
+
+/* Transparent Interaction Area */
+.content-box {
+    width: 90%;
+    margin-bottom: 40px;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(5px);
+    border-radius: 15px;
+    text-align: center;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.8);
+}
+
+.nav-links {
+    margin-top: 15px;
+    display: flex;
+    justify-content: space-around;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    padding: 10px 20px;
+    border: 1px solid white;
+    border-radius: 25px;
+    background: rgba(139, 0, 0, 0.6);
+}
