@@ -2,73 +2,100 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Interface 1</title>
-    <link rel="stylesheet" href="style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>A Romantic Journey</title>
+    <link rel="stylesheet" href="style.css?v=1.3">
 </head>
-<body class="bg-1">
-    <div class="content-box">
-        <div class="nav-links">
-            <a href="page2.html">Open Letter →</a>
+<body>
+
+    <audio id="bg-music" loop>
+        <source src="music.mp3" type="audio/mpeg">
+    </audio>
+
+    <section id="start-page" class="panel active start-bg">
+        <div class="content-box">
+            <h1 class="romantic-text">A Special Message Awaits</h1>
+            <p>Turn up your volume for the best experience.</p>
+            <div class="nav-links">
+                <button class="start-btn" onclick="startJourney()">Click to Start</button>
+            </div>
         </div>
-    </div>
+    </section>
+
+    <section id="int1" class="panel bg-1">
+        <div class="content-box">
+            <div class="nav-links">
+                <button onclick="nextPage('int2')">Open Letter →</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="int2" class="panel bg-2">
+        <div class="content-box">
+            <div class="nav-links">
+                <button onclick="nextPage('int1')">← Back</button>
+                <button onclick="nextPage('int3')">Next →</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="int3" class="panel bg-3">
+        <div class="content-box">
+            <div class="nav-links">
+                <button onclick="nextPage('int2')">← Back</button>
+                <button onclick="nextPage('int4')">Next →</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="int4" class="panel bg-4">
+        <div class="content-box">
+            <div class="nav-links">
+                <button onclick="nextPage('int3')">← Back</button>
+            </div>
+        </div>
+    </section>
 
     <script>
-    // 1. Particle Generator (Hearts and Sparkles)
-    function createParticle() {
-        const symbols = ['✨', '💖', '⭐', '🌸', '✨'];
-        const particle = document.createElement('div');
-        particle.className = 'particle';
-        particle.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
-        
-        // Random horizontal position
-        particle.style.left = Math.random() * 100 + 'vw';
-        // Random size
-        particle.style.fontSize = (Math.random() * 10 + 10) + 'px';
-        // Random duration
-        particle.style.animationDuration = (Math.random() * 2 + 3) + 's';
-        
-        document.body.appendChild(particle);
+        const music = document.getElementById('bg-music');
 
-        // Remove from DOM after animation
-        setTimeout(() => {
-            particle.remove();
-        }, 4000);
-    }
+        // Function to start music and move to first interface
+        function startJourney() {
+            music.play().catch(e => console.log("Audio play failed"));
+            nextPage('int1');
+        }
 
-    // Create a new sparkle every 500ms
-    setInterval(createParticle, 500);
+        // Particle Generator
+        function createParticle() {
+            const symbols = ['✨', '💖', '⭐', '🌸'];
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+            particle.style.left = Math.random() * 100 + 'vw';
+            particle.style.fontSize = (Math.random() * 10 + 10) + 'px';
+            particle.style.animationDuration = (Math.random() * 2 + 3) + 's';
+            document.body.appendChild(particle);
+            setTimeout(() => { particle.remove(); }, 4000);
+        }
+        setInterval(createParticle, 500);
 
-    // 2. Smooth Romantic Page Transition
-    document.querySelectorAll('a').forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            let target = this.href;
-
-            document.body.style.transition = "opacity 0.8s ease-out, transform 0.8s ease-out, filter 0.8s ease-out";
-            document.body.style.opacity = "0";
-            document.body.style.transform = "scale(1.1)"; // Zoom in effect on exit
-            document.body.style.filter = "blur(10px)";
+        // Navigation Logic
+        function nextPage(pageId) {
+            const current = document.querySelector('.panel.active');
+            current.style.opacity = '0';
+            current.style.transform = 'scale(1.1)';
+            current.style.filter = 'blur(10px)';
 
             setTimeout(() => {
-                window.location.href = target;
+                current.classList.remove('active');
+                current.style.transform = 'scale(1)'; 
+                current.style.filter = 'blur(0px)';
+
+                const next = document.getElementById(pageId);
+                next.classList.add('active');
+                next.style.opacity = '1';
             }, 800);
-
-            window.onload = function() {
-    window.scrollTo(0, 0);
-};
-        });
-    });
-</script>
-
-
-// Force mobile browser to start at the very top on refresh
-if ('scrollRestoration' in history) {
-    history.scrollRestoration = 'manual';
-}
-window.scrollTo(0, 0);
-    
+        }
+    </script>
 </body>
-
 </html>
-
