@@ -9,6 +9,14 @@
 </head>
 <body>
 
+  <div id="dark-room">
+    <div id="lamp-container">
+        <div id="lamp-wire"></div>
+        <div id="lamp-handle" class="glowing-heart"></div>
+    </div>
+    <p class="instruction">Pull the heart to begin...</p>
+</div>
+
     <div id="particle-container"></div>
 
     <audio id="bg-music" loop>
@@ -17,10 +25,10 @@
 
     <section id="start-page" class="panel active start-bg">
         <div class="content-box">
-            <h1 class="cursive">For My Queen...</h1>
-            <p>Every page is a piece of my heart.</p>
+            <h1 class="cursive">Welcome My Queen...</h1>
+            <p>Click here to see inside.</p>
             <div class="nav-links">
-                <button class="start-btn" onclick="startJourney()">Begin the Journey</button>
+                <button class="start-btn" onclick="startJourney()">Click</button>
             </div>
         </div>
     </section>
@@ -64,11 +72,67 @@
         const music = document.getElementById('bg-music');
         const particleContainer = document.getElementById('particle-container');
 
-        // Function to start music and move to first interface
-        function startJourney() {
-            music.play().catch(e => console.log("Audio enabled"));
-            nextPage('int1');
-        }
+
+const darkRoom = document.getElementById('dark-room');
+const handle = document.getElementById('lamp-handle');
+const wire = document.getElementById('lamp-wire');
+
+let isDragging = false;
+let startY = 0;
+
+// Handle the dragging movement
+const startDrag = (e) => {
+    isDragging = true;
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+};
+
+const onDrag = (e) => {
+    if (!isDragging) return;
+    const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+    const delta = Math.max(0, currentY - startY);
+    
+    if (delta < 250) {
+        // We keep the rotation (-45deg) while translating Y
+        handle.style.transform = `translateY(${delta}px) rotate(-45deg)`;
+        wire.style.height = (200 + delta) + "px";
+    }
+    
+    if (delta > 150) {
+        isDragging = false;
+        revealSite();
+    }
+};
+
+const stopDrag = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    handle.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+    wire.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+    handle.style.transform = "translateY(0) rotate(-45deg)"; // Maintain rotation
+    wire.style.height = "200px";
+};
+
+// Event Listeners for Mouse and Touch
+handle.addEventListener('mousedown', startDrag);
+handle.addEventListener('touchstart', startDrag);
+window.addEventListener('mousemove', onDrag);
+window.addEventListener('touchmove', onDrag);
+window.addEventListener('mouseup', stopDrag);
+window.addEventListener('touchend', stopDrag);
+
+function revealSite() {
+    darkRoom.style.opacity = "0";
+    
+    music.play().catch(e => console.log("Music waiting for interaction"));
+
+    setTimeout(() => {
+        darkRoom.style.display = "none";
+    }, 800);
+}
+
+function startJourney() {
+    nextPage('int1');
+}
 
         // --- PARTICLE EFFECT SYSTEM ---
         function createParticle() {
