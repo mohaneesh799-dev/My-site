@@ -69,120 +69,121 @@
     </section>
 
     <script>
-        const music = document.getElementById('bg-music');
-        const particleContainer = document.getElementById('particle-container');
+    const music = document.getElementById('bg-music');
+    const particleContainer = document.getElementById('particle-container');
+    const darkRoom = document.getElementById('dark-room');
+    const handle = document.getElementById('lamp-handle');
+    const wire = document.getElementById('lamp-wire');
 
+    let isDragging = false;
+    let startY = 0;
 
-const darkRoom = document.getElementById('dark-room');
-const handle = document.getElementById('lamp-handle');
-const wire = document.getElementById('lamp-wire');
+    // --- LAMP THREAD LOGIC ---
+    const startDrag = (e) => {
+        isDragging = true;
+        startY = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        // MOBILE AUDIO FIX: "Wake up" the audio engine on the first touch
+        music.play().then(() => {
+            music.pause(); 
+        }).catch(e => console.log("Audio primed"));
+    };
 
-let isDragging = false;
-let startY = 0;
-
-// Handle the dragging movement
-const startDrag = (e) => {
-    isDragging = true;
-    startY = e.touches ? e.touches[0].clientY : e.clientY;
-};
-
-const onDrag = (e) => {
-    if (!isDragging) return;
-    const currentY = e.touches ? e.touches[0].clientY : e.clientY;
-    const delta = Math.max(0, currentY - startY);
-    
-    if (delta < 250) {
-        // We keep the rotation (-45deg) while translating Y
-        handle.style.transform = `translateY(${delta}px) rotate(-45deg)`;
-        wire.style.height = (200 + delta) + "px";
-    }
-    
-    if (delta > 150) {
-        isDragging = false;
-        revealSite();
-    }
-};
-
-const stopDrag = () => {
-    if (!isDragging) return;
-    isDragging = false;
-    handle.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-    wire.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-    handle.style.transform = "translateY(0) rotate(-45deg)"; // Maintain rotation
-    wire.style.height = "200px";
-};
-
-// Event Listeners for Mouse and Touch
-handle.addEventListener('mousedown', startDrag);
-handle.addEventListener('touchstart', startDrag);
-window.addEventListener('mousemove', onDrag);
-window.addEventListener('touchmove', onDrag);
-window.addEventListener('mouseup', stopDrag);
-window.addEventListener('touchend', stopDrag);
-
-function revealSite() {
-    darkRoom.style.opacity = "0";
-    
-    music.play().catch(e => console.log("Music waiting for interaction"));
-
-    setTimeout(() => {
-        darkRoom.style.display = "none";
-    }, 800);
-}
-
-function startJourney() {
-    nextPage('int1');
-}
-
-        // --- PARTICLE EFFECT SYSTEM ---
-        function createParticle() {
-            const symbols = ['✨', '💖', '🌸', '🤍', '⭐'];
-            const particle = document.createElement('div');
-            
-            particle.className = 'particle';
-            particle.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
-            
-            // Random horizontal start position
-            particle.style.left = Math.random() * 100 + 'vw';
-            
-            // Random size for variety
-            const size = (Math.random() * 15 + 12) + 'px';
-            particle.style.fontSize = size;
-            
-            // Random duration for natural feel
-            const duration = (Math.random() * 3 + 4) + 's';
-            particle.style.animationDuration = duration;
-
-            particleContainer.appendChild(particle);
-
-            // Remove particle after it finishes floating up
-            setTimeout(() => {
-                particle.remove();
-            }, 6000);
+    const onDrag = (e) => {
+        if (!isDragging) return;
+        const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+        const delta = Math.max(0, currentY - startY);
+        
+        if (delta < 250) {
+            handle.style.transform = `translateY(${delta}px) rotate(-45deg)`;
+            wire.style.height = (200 + delta) + "px";
         }
+        
+        if (delta > 150) {
+            isDragging = false;
+            revealSite();
+        }
+    };
 
-        // Create particles continuously
-        setInterval(createParticle, 400);
+    const stopDrag = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        handle.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+        wire.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+        handle.style.transform = "translateY(0) rotate(-45deg)";
+        wire.style.height = "200px";
+    };
 
-        // --- NAVIGATION SYSTEM ---
-        function nextPage(pageId) {
-            const current = document.querySelector('.panel.active');
-            
-            // Fade & Blur Exit Effect
-            current.style.opacity = '0';
-            current.style.transform = 'scale(1.05)';
-            current.style.filter = 'blur(15px)';
+    handle.addEventListener('mousedown', startDrag);
+    handle.addEventListener('touchstart', startDrag);
+    window.addEventListener('mousemove', onDrag);
+    window.addEventListener('touchmove', onDrag);
+    window.addEventListener('mouseup', stopDrag);
+    window.addEventListener('touchend', stopDrag);
 
-            setTimeout(() => {
-                current.classList.remove('active');
-                current.style.transform = 'scale(1)'; 
-                current.style.filter = 'blur(0px)';
+    function revealSite() {
+        darkRoom.style.opacity = "0";
+        // Play music now that we have user interaction
+        music.currentTime = 0;
+        music.play();
 
-                const next = document.getElementById(pageId);
+        setTimeout(() => {
+            darkRoom.style.display = "none";
+            // Ensure the start page is ready
+            const startPage = document.getElementById('start-page');
+            startPage.classList.add('active');
+            startPage.style.opacity = "1";
+        }, 800);
+    }
+
+    function startJourney() {
+        nextPage('int1');
+    }
+
+    // --- GLOWING PARTICLE SYSTEM ---
+    function createParticle() {
+        const symbols = ['✨', '💖', '🌸', '🤍', '⭐'];
+        const particle = document.createElement('div');
+        
+        particle.className = 'particle';
+        particle.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+        
+        particle.style.left = Math.random() * 100 + 'vw';
+        const size = (Math.random() * 15 + 12) + 'px';
+        particle.style.fontSize = size;
+        
+        // Add a slight random delay so they don't all look the same
+        const duration = (Math.random() * 3 + 4) + 's';
+        particle.style.animationDuration = duration;
+
+        particleContainer.appendChild(particle);
+
+        setTimeout(() => { particle.remove(); }, 6000);
+    }
+
+    setInterval(createParticle, 400);
+
+    // --- NAVIGATION SYSTEM ---
+    function nextPage(pageId) {
+        const current = document.querySelector('.panel.active');
+        if(!current) return;
+
+        current.style.opacity = '0';
+        current.style.transform = 'scale(1.05)';
+        current.style.filter = 'blur(15px)';
+
+        setTimeout(() => {
+            current.classList.remove('active');
+            current.style.transform = 'scale(1)'; 
+            current.style.filter = 'blur(0px)';
+
+            const next = document.getElementById(pageId);
+            if(next) {
                 next.classList.add('active');
                 next.style.opacity = '1';
-            }, 1000);
-        }
-    </script>
+            }
+        }, 1000);
+    }
+</script>
 </body>
 </html>
