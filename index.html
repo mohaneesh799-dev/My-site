@@ -5,21 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>A Romantic Journey</title>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=1.5">
+    <link rel="stylesheet" href="style.css?v=3.0">
 </head>
 <body>
 
-  <div id="dark-room">
-    <div id="lamp-container">
-        <div id="lamp-wire"></div>
-        <div id="lamp-handle" class="glowing-heart"></div>
+    <div id="dark-room">
+        <div id="lamp-container">
+            <div id="lamp-wire"></div>
+            <div id="lamp-handle" class="glowing-heart"></div>
+        </div>
+        <p class="instruction">Pull the heart to begin...</p>
     </div>
-    <p class="instruction">Pull the heart to begin...</p>
-</div>
 
     <div id="particle-container"></div>
 
-    <audio id="bg-music" loop>
+    <audio id="bg-music" loop preload="auto">
         <source src="music.mp3" type="audio/mpeg">
     </audio>
 
@@ -69,82 +69,83 @@
     </section>
 
     <script>
-    const music = document.getElementById('bg-music');
-const particleContainer = document.getElementById('particle-container');
-const darkRoom = document.getElementById('dark-room');
-const handle = document.getElementById('lamp-handle');
-const wire = document.getElementById('lamp-wire');
+        const music = document.getElementById('bg-music');
+        const particleContainer = document.getElementById('particle-container');
+        const darkRoom = document.getElementById('dark-room');
+        const handle = document.getElementById('lamp-handle');
+        const wire = document.getElementById('lamp-wire');
 
-let isDragging = false;
-let startY = 0;
+        let isDragging = false;
+        let startY = 0;
 
-// --- LAMP THREAD LOGIC ---
-const startDrag = (e) => {
-    isDragging = true;
-    startY = e.touches ? e.touches[0].clientY : e.clientY;
-    
-    // Prime the audio engine so mobile browsers allow autoplay
-    music.play().then(() => {
-        music.pause(); 
-    }).catch(e => console.log("Audio waiting for pull..."));
-};
+        // --- LAMP THREAD LOGIC ---
+        const startDrag = (e) => {
+            isDragging = true;
+            startY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            // Prime audio engine for mobile immediately on touch
+            music.play().then(() => {
+                music.pause(); 
+            }).catch(e => console.log("Waiting for user pull..."));
+        };
 
-const onDrag = (e) => {
-    if (!isDragging) return;
-    const currentY = e.touches ? e.touches[0].clientY : e.clientY;
-    const delta = Math.max(0, currentY - startY);
-    
-    // Limit drag and rotate for the heartbeat look
-    if (delta < 250) {
-        handle.style.transform = `translateY(${delta}px) rotate(-45deg)`;
-        wire.style.height = (200 + delta) + "px";
-    }
-    
-    // Trigger point to reveal the site
-    if (delta > 160) {
-        isDragging = false;
-        revealSite();
-    }
-};
+        const onDrag = (e) => {
+            if (!isDragging) return;
+            const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+            const delta = Math.max(0, currentY - startY);
+            
+            if (delta < 250) {
+                // Keep the -45deg rotation required for the heart shape
+                handle.style.transform = `translateY(${delta}px) rotate(-45deg)`;
+                wire.style.height = (200 + delta) + "px";
+            }
+            
+            if (delta > 160) {
+                isDragging = false;
+                revealSite();
+            }
+        };
 
-const stopDrag = () => {
-    if (!isDragging) return;
-    isDragging = false;
-    // Spring back effect
-    handle.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-    wire.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-    handle.style.transform = "translateY(0) rotate(-45deg)";
-    wire.style.height = "200px";
-};
+        const stopDrag = () => {
+            if (!isDragging) return;
+            isDragging = false;
+            // Spring back if not pulled far enough
+            handle.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+            wire.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+            handle.style.transform = "translateY(0) rotate(-45deg)";
+            wire.style.height = "200px";
+        };
 
-// Event Listeners
-handle.addEventListener('mousedown', startDrag);
-handle.addEventListener('touchstart', startDrag);
-window.addEventListener('mousemove', onDrag);
-window.addEventListener('touchmove', onDrag);
-window.addEventListener('mouseup', stopDrag);
-window.addEventListener('touchend', stopDrag);
+        handle.addEventListener('mousedown', startDrag);
+        handle.addEventListener('touchstart', startDrag, {passive: false});
+        window.addEventListener('mousemove', onDrag);
+        window.addEventListener('touchmove', onDrag, {passive: false});
+        window.addEventListener('mouseup', stopDrag);
+        window.addEventListener('touchend', stopDrag);
 
-function revealSite() {
-    // 1. CLEAR DRAG STYLES (Crucial for the Zoom to work)
+        function revealSite() {
+    // 1. CLEAR DRAG POSITION
+    isDragging = false; 
     handle.style.transform = ""; 
     handle.style.transition = "";
-    
-    // 2. START MUSIC
-    music.currentTime = 0;
-    music.play().catch(e => console.log("Music blocked by browser policy"));
 
-    // 3. TRIGGER ZOOM (Wait one frame to let styles reset)
+    // 2. PLAY MUSIC
+    music.currentTime = 0;
+    music.play().catch(e => console.log("Audio play blocked"));
+
+    // 3. TRIGGER THE "BIG ZOOM"
     requestAnimationFrame(() => {
         handle.classList.add('heart-zoom');
         wire.style.opacity = "0";
         document.querySelector('.instruction').style.opacity = "0";
     });
 
-    // 4. TRANSITION TO JOURNEY
+    // 4. REDIRECT AFTER THE ZOOM COVERS THE SCREEN
+    // We wait 1 second for the heart to get huge, THEN fade the dark room
     setTimeout(() => {
         darkRoom.style.opacity = "0";
         
+        // Final cleanup to show the site
         setTimeout(() => {
             darkRoom.style.display = "none";
             const startPage = document.getElementById('start-page');
@@ -153,55 +154,55 @@ function revealSite() {
                 startPage.style.opacity = "1";
             }
         }, 800);
-    }, 1200); // Gives the heart time to expand fully
+    }, 1000); // This delay ensures the screen is red before the page changes
 }
 
-function startJourney() {
-    nextPage('int1');
-}
-
-// --- GLOWING PARTICLE SYSTEM ---
-function createParticle() {
-    const symbols = ['✨', '💖', '🌹', '🤍', '❤️‍🩹'];
-    const particle = document.createElement('div');
-    
-    particle.className = 'particle';
-    particle.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
-    
-    particle.style.left = Math.random() * 100 + 'vw';
-    const size = (Math.random() * 15 + 12) + 'px';
-    particle.style.fontSize = size;
-    
-    const duration = (Math.random() * 3 + 4) + 's';
-    particle.style.animationDuration = duration;
-
-    particleContainer.appendChild(particle);
-    setTimeout(() => { particle.remove(); }, 6000);
-}
-
-setInterval(createParticle, 400);
-
-// --- NAVIGATION SYSTEM ---
-function nextPage(pageId) {
-    const current = document.querySelector('.panel.active');
-    if(!current) return;
-
-    current.style.opacity = '0';
-    current.style.transform = 'scale(1.05)';
-    current.style.filter = 'blur(15px)';
-
-    setTimeout(() => {
-        current.classList.remove('active');
-        current.style.transform = 'scale(1)'; 
-        current.style.filter = 'blur(0px)';
-
-        const next = document.getElementById(pageId);
-        if(next) {
-            next.classList.add('active');
-            next.style.opacity = '1';
+        function startJourney() {
+            nextPage('int1');
         }
-    }, 1000);
-}
-</script>
+
+        // --- GLOWING PARTICLE SYSTEM ---
+        function createParticle() {
+            const symbols = ['✨', '💖', '🌹', '🤍', '❤️‍🩹'];
+            const particle = document.createElement('div');
+            
+            particle.className = 'particle';
+            particle.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+            
+            particle.style.left = Math.random() * 100 + 'vw';
+            const size = (Math.random() * 15 + 12) + 'px';
+            particle.style.fontSize = size;
+            
+            const duration = (Math.random() * 3 + 4) + 's';
+            particle.style.animationDuration = duration;
+
+            particleContainer.appendChild(particle);
+            setTimeout(() => { particle.remove(); }, 6000);
+        }
+
+        setInterval(createParticle, 400);
+
+        // --- NAVIGATION SYSTEM ---
+        function nextPage(pageId) {
+            const current = document.querySelector('.panel.active');
+            if(!current) return;
+
+            current.style.opacity = '0';
+            current.style.transform = 'scale(1.05)';
+            current.style.filter = 'blur(15px)';
+
+            setTimeout(() => {
+                current.classList.remove('active');
+                current.style.transform = 'scale(1)'; 
+                current.style.filter = 'blur(0px)';
+
+                const next = document.getElementById(pageId);
+                if(next) {
+                    next.classList.add('active');
+                    next.style.opacity = '1';
+                }
+            }, 1000);
+        }
+    </script>
 </body>
 </html>
