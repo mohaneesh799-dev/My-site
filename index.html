@@ -6,6 +6,7 @@
     <title>A Romantic Journey</title>
     <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css?v=3.0">
+    
 </head>
 <body>
 
@@ -22,6 +23,10 @@
     <audio id="bg-music" loop preload="auto">
         <source src="music.mp3" type="audio/mpeg">
     </audio>
+
+    <div id="pencil-trigger" onclick="checkPassword()">👻</div>
+    <canvas id="scratch-pad"></canvas>
+    <button id="done-btn" onclick="validateDrawing()">Done Drawing</button>
 
     <section id="start-page" class="panel active start-bg">
         <div class="content-box">
@@ -61,6 +66,8 @@
 
     <section id="int4" class="panel bg-4">
         <div class="content-box">
+            <h2 class="cursive">The End?</h2>
+            <p>Or is there more to find?</p>
             <div class="nav-links">
                 <button onclick="nextPage('int3')">← Back</button>
                 <button onclick="nextPage('start-page')">Go back to start page</button>
@@ -68,141 +75,155 @@
         </div>
     </section>
 
-    <script>
-        const music = document.getElementById('bg-music');
-        const particleContainer = document.getElementById('particle-container');
-        const darkRoom = document.getElementById('dark-room');
-        const handle = document.getElementById('lamp-handle');
-        const wire = document.getElementById('lamp-wire');
+    <section id="secret-page" class="panel">
+        <div class="content-box">
+            <h1 class="cursive">For Your Eyes Only</h1>
+            <p>You found the secret! I love you more than words can say.</p>
+            <div class="nav-links">
+               <button onclick="resetToLamp()">Back to Start</button>
+            </div>
+        </div>
+    </section>
+<script>
+   const music = document.getElementById('bg-music');
+const particleContainer = document.getElementById('particle-container');
+const darkRoom = document.getElementById('dark-room');
+const handle = document.getElementById('lamp-handle');
+const wire = document.getElementById('lamp-wire');
 
-        let isDragging = false;
-        let startY = 0;
+let isDragging = false;
+let startY = 0;
 
-        // --- LAMP THREAD LOGIC ---
-        const startDrag = (e) => {
-            isDragging = true;
-            startY = e.touches ? e.touches[0].clientY : e.clientY;
-            
-            // Prime audio engine for mobile immediately on touch
-            music.play().then(() => {
-                music.pause(); 
-            }).catch(e => console.log("Waiting for user pull..."));
-        };
+// --- LAMP THREAD LOGIC ---
+const startDrag = (e) => {
+    isDragging = true;
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    music.play().then(() => music.pause()).catch(e => {});
+};
 
-        const onDrag = (e) => {
-            if (!isDragging) return;
-            const currentY = e.touches ? e.touches[0].clientY : e.clientY;
-            const delta = Math.max(0, currentY - startY);
-            
-            if (delta < 250) {
-                // Keep the -45deg rotation required for the heart shape
-                handle.style.transform = `translateY(${delta}px) rotate(-45deg)`;
-                wire.style.height = (200 + delta) + "px";
-            }
-            
-            if (delta > 160) {
-                isDragging = false;
-                revealSite();
-            }
-        };
+const onDrag = (e) => {
+    if (!isDragging) return;
+    const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+    const delta = Math.max(0, currentY - startY);
+    if (delta < 250) {
+        handle.style.transform = `translateY(${delta}px) rotate(-45deg)`;
+        wire.style.height = (200 + delta) + "px";
+    }
+    if (delta > 160) {
+        isDragging = false;
+        revealSite();
+    }
+};
 
-        const stopDrag = () => {
-            if (!isDragging) return;
-            isDragging = false;
-            // Spring back if not pulled far enough
-            handle.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-            wire.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-            handle.style.transform = "translateY(0) rotate(-45deg)";
-            wire.style.height = "200px";
-        };
+const stopDrag = () => {
+    if (!isDragging) return;
+    isDragging = false;
+    handle.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+    wire.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+    handle.style.transform = "translateY(0) rotate(-45deg)";
+    wire.style.height = "200px";
+};
 
-        handle.addEventListener('mousedown', startDrag);
-        handle.addEventListener('touchstart', startDrag, {passive: false});
-        window.addEventListener('mousemove', onDrag);
-        window.addEventListener('touchmove', onDrag, {passive: false});
-        window.addEventListener('mouseup', stopDrag);
-        window.addEventListener('touchend', stopDrag);
+handle.addEventListener('mousedown', startDrag);
+handle.addEventListener('touchstart', startDrag, {passive: false});
+window.addEventListener('mousemove', onDrag);
+window.addEventListener('touchmove', onDrag, {passive: false});
+window.addEventListener('mouseup', stopDrag);
+window.addEventListener('touchend', stopDrag);
 
-        function revealSite() {
-    // 1. CLEAR DRAG POSITION
-    isDragging = false; 
-    handle.style.transform = ""; 
-    handle.style.transition = "";
-
-    // 2. PLAY MUSIC
+function revealSite() {
     music.currentTime = 0;
-    music.play().catch(e => console.log("Audio play blocked"));
-
-    // 3. TRIGGER THE "BIG ZOOM"
+    music.play();
+    handle.style.transform = ""; 
     requestAnimationFrame(() => {
         handle.classList.add('heart-zoom');
         wire.style.opacity = "0";
         document.querySelector('.instruction').style.opacity = "0";
     });
-
-    // 4. REDIRECT AFTER THE ZOOM COVERS THE SCREEN
-    // We wait 1 second for the heart to get huge, THEN fade the dark room
     setTimeout(() => {
         darkRoom.style.opacity = "0";
-        
-        // Final cleanup to show the site
         setTimeout(() => {
             darkRoom.style.display = "none";
-            const startPage = document.getElementById('start-page');
-            if(startPage) {
-                startPage.classList.add('active');
-                startPage.style.opacity = "1";
-            }
+            document.getElementById('start-page').classList.add('active');
+            document.getElementById('start-page').style.opacity = "1";
         }, 800);
-    }, 1000); // This delay ensures the screen is red before the page changes
+    }, 1000); 
 }
 
-        function startJourney() {
-            nextPage('int1');
+// --- NAVIGATION ---
+function nextPage(pageId) {
+    const current = document.querySelector('.panel.active');
+    if(!current) return;
+    current.style.opacity = '0';
+    current.style.transform = 'scale(1.05)';
+    setTimeout(() => {
+        current.classList.remove('active');
+        const next = document.getElementById(pageId);
+        if(next) {
+            next.classList.add('active');
+            next.style.opacity = '1';
+            next.style.transform = 'scale(1)';
+            const pencil = document.getElementById('pencil-trigger');
+            if(pencil) pencil.style.display = (pageId === 'int4') ? 'flex' : 'none';
         }
+    }, 1000);
+}
 
-        // --- GLOWING PARTICLE SYSTEM ---
-        function createParticle() {
-            const symbols = ['✨', '💖', '🌹', '🤍', '❤️‍🩹'];
-            const particle = document.createElement('div');
-            
-            particle.className = 'particle';
-            particle.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
-            
-            particle.style.left = Math.random() * 100 + 'vw';
-            const size = (Math.random() * 15 + 12) + 'px';
-            particle.style.fontSize = size;
-            
-            const duration = (Math.random() * 3 + 4) + 's';
-            particle.style.animationDuration = duration;
+function startJourney() { nextPage('int1'); }
 
-            particleContainer.appendChild(particle);
-            setTimeout(() => { particle.remove(); }, 6000);
-        }
+// --- UPDATED SECRET LOCK (TEXT ONLY) ---
+function checkPassword() {
+    const pass = prompt("Enter the secret code to see the secret page:");
+    if (pass === "1234") { 
+        // Directly open the secret page if password is correct
+        nextPage('secret-page');
+    } else {
+        alert("Wrong code, My Queen.");
+    }
+}
 
-        setInterval(createParticle, 400);
+// --- RESET TO START (FIRST IMAGE INTERFACE) ---
+function resetToLamp() {
+    // 1. Hide the secret page and current panels
+    const activePanel = document.querySelector('.panel.active');
+    if(activePanel) {
+        activePanel.classList.remove('active');
+        activePanel.style.opacity = '0';
+    }
 
-        // --- NAVIGATION SYSTEM ---
-        function nextPage(pageId) {
-            const current = document.querySelector('.panel.active');
-            if(!current) return;
+    // 2. Bring back the dark room lamp interface
+    darkRoom.style.display = "flex";
+    setTimeout(() => {
+        darkRoom.style.opacity = "1";
+    }, 50);
 
-            current.style.opacity = '0';
-            current.style.transform = 'scale(1.05)';
-            current.style.filter = 'blur(15px)';
+    // 3. Reset the lamp handle and wire
+    handle.classList.remove('heart-zoom');
+    handle.style.transform = "translateY(0) rotate(-45deg)";
+    wire.style.height = "200px";
+    wire.style.opacity = "1";
+    
+    // 4. Show the instruction text again
+    document.querySelector('.instruction').style.opacity = "1";
+    
+    // 5. Reset Music
+    music.pause();
+    music.currentTime = 0;
+}
 
-            setTimeout(() => {
-                current.classList.remove('active');
-                current.style.transform = 'scale(1)'; 
-                current.style.filter = 'blur(0px)';
-
-                const next = document.getElementById(pageId);
-                if(next) {
-                    next.classList.add('active');
-                    next.style.opacity = '1';
-                }
-            }, 1000);
-        }
-    </script>
+// --- PARTICLES ---
+function createParticle() {
+    const symbols = ['✨', '💖', '🌹', '🤍', '❤️‍🩹'];
+    const particle = document.createElement('div');
+    particle.className = 'particle';
+    particle.innerHTML = symbols[Math.floor(Math.random() * symbols.length)];
+    particle.style.left = Math.random() * 100 + 'vw';
+    particle.style.fontSize = (Math.random() * 15 + 12) + 'px';
+    particle.style.animationDuration = (Math.random() * 3 + 4) + 's';
+    particleContainer.appendChild(particle);
+    setTimeout(() => particle.remove(), 6000);
+}
+setInterval(createParticle, 400);
+</script>
 </body>
 </html>
