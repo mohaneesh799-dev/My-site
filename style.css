@@ -236,33 +236,22 @@ button:active { transform: scale(0.9); }
 
 
   /* Essential styles for the hidden features */
-        #pencil-trigger {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            width: 55px;
-            height: 55px;
-            background: linear-gradient(45deg, #ffb6c1, #ff69b4);
-            border-radius: 50%;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            font-size: 26px;
-            cursor: pointer;
-            z-index: 999;
-            box-shadow: 0 0 20px rgba(255,105,180,0.6);
-        }
-
-        #scratch-pad {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100vw; height: 100vh;
-            display: none;
-            z-index: 1000;
-            background: rgba(0, 0, 0, 0.95);
-            touch-action: none;
-        }
-
+      #pencil-trigger {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 60px;
+    height: 60px;
+    background: #ff69b4; /* Romantic Pink */
+    border-radius: 50%;
+    display: none; /* Controlled by JavaScript */
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    z-index: 9999;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
         #done-btn {
             position: fixed;
             bottom: 50px;
