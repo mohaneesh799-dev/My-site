@@ -172,9 +172,11 @@ button:active { transform: scale(0.9); }
     height: 40px;
     background-color: #ff0000;
     transform: rotate(-45deg);
+    transform-origin: center; /* Critical for zooming */
     cursor: grab;
     box-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000;
     animation: heartBeat 1.5s infinite;
+    transition: transform 0.1s linear;
 }
 
 .glowing-heart:before,
@@ -210,4 +212,19 @@ button:active { transform: scale(0.9); }
 @keyframes pulseText {
     0%, 100% { opacity: 0.4; transform: scale(1); }
     50% { opacity: 1; transform: scale(1.05); }
+}
+
+
+
+/* THE ZOOM EFFECT */
+.heart-zoom {
+    /* We use !important to override the JavaScript drag position */
+    transform: rotate(-45deg) scale(100) !important; 
+    opacity: 0;
+    transition: transform 1.8s ease-in, opacity 1.5s ease-in !important;
+}
+
+/* Ensure the dark room fades out slightly slower for the zoom effect */
+#dark-room {
+    transition: opacity 1.5s ease;
 }
