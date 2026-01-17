@@ -82,8 +82,9 @@
             </div>
         </div>
     </section>
-<script>
-   const music = document.getElementById('bg-music');
+
+ <script>
+const music = document.getElementById('bg-music');
 const particleContainer = document.getElementById('particle-container');
 const darkRoom = document.getElementById('dark-room');
 const handle = document.getElementById('lamp-handle');
@@ -161,57 +162,64 @@ function nextPage(pageId) {
             next.classList.add('active');
             next.style.opacity = '1';
 
-            // --- THE FIX IS HERE ---
             const pencil = document.getElementById('pencil-trigger');
-            const oldBtn = document.getElementById('done-btn');
-
-            // Show pencil ONLY on the final page (int4)
+            // Show sparkling heart ONLY on page int4. Hide it on secret-page or others.
             if(pencil) pencil.style.display = (pageId === 'int4') ? 'flex' : 'none';
-            
-            // Force the "Done Drawing" button to stay hidden
-            if(oldBtn) oldBtn.style.display = 'none'; 
         }
     }, 1000);
 }
 
 function startJourney() { nextPage('int1'); }
 
-// --- UPDATED SECRET LOCK (TEXT ONLY) ---
+// --- BEAUTIFUL CUSTOM MODAL LOGIC ---
 function checkPassword() {
-    const pass = prompt("Enter the secret code to see the secret page:");
-    if (pass === "1234") { 
-        // Directly open the secret page if password is correct
+    // Instead of prompt, we show the beautiful modal
+    document.getElementById('password-modal').style.display = 'flex';
+    document.getElementById('pass-input').focus();
+}
+
+function closeModal() {
+    document.getElementById('password-modal').style.display = 'none';
+    document.getElementById('pass-input').value = '';
+}
+
+function submitPass() {
+    const input = document.getElementById('pass-input').value;
+    if (input === "1234") {
+        closeModal();
         nextPage('secret-page');
     } else {
-        alert("Wrong code, My Queen.");
+        alert("The stars whisper a different password. Please Try again My Queen.");
+        document.getElementById('pass-input').value = '';
     }
 }
 
-// --- RESET TO START (FIRST IMAGE INTERFACE) ---
+// Support for "Enter" key in the password box
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && document.getElementById('password-modal').style.display === 'flex') {
+        submitPass();
+    }
+});
+
+// --- RESET TO START ---
 function resetToLamp() {
-    // 1. Hide the secret page and current panels
     const activePanel = document.querySelector('.panel.active');
     if(activePanel) {
         activePanel.classList.remove('active');
         activePanel.style.opacity = '0';
     }
 
-    // 2. Bring back the dark room lamp interface
     darkRoom.style.display = "flex";
     setTimeout(() => {
         darkRoom.style.opacity = "1";
     }, 50);
 
-    // 3. Reset the lamp handle and wire
     handle.classList.remove('heart-zoom');
     handle.style.transform = "translateY(0) rotate(-45deg)";
     wire.style.height = "200px";
     wire.style.opacity = "1";
-    
-    // 4. Show the instruction text again
     document.querySelector('.instruction').style.opacity = "1";
     
-    // 5. Reset Music
     music.pause();
     music.currentTime = 0;
 }
@@ -230,5 +238,18 @@ function createParticle() {
 }
 setInterval(createParticle, 400);
 </script>
+
+<div id="password-modal">
+    <div class="modal-content">
+        <h3 class="cursive">A Secret Awaits...</h3>
+        <p style="color: black;">Enter the password, My Queen</p>
+        <input type="password" id="pass-input" placeholder="••••••••">
+        <div class="modal-buttons">
+            <button onclick="closeModal()">Cancel</button>
+            <button onclick="submitPass()" class="glow-btn">Unlock</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>
