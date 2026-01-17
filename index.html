@@ -25,8 +25,6 @@
     </audio>
 
     <div id="pencil-trigger" onclick="checkPassword()">👻</div>
-    <canvas id="scratch-pad"></canvas>
-    <button id="done-btn" onclick="validateDrawing()">Done Drawing</button>
 
     <section id="start-page" class="panel active start-bg">
         <div class="content-box">
@@ -154,17 +152,24 @@ function revealSite() {
 function nextPage(pageId) {
     const current = document.querySelector('.panel.active');
     if(!current) return;
+
     current.style.opacity = '0';
-    current.style.transform = 'scale(1.05)';
     setTimeout(() => {
         current.classList.remove('active');
         const next = document.getElementById(pageId);
         if(next) {
             next.classList.add('active');
             next.style.opacity = '1';
-            next.style.transform = 'scale(1)';
+
+            // --- THE FIX IS HERE ---
             const pencil = document.getElementById('pencil-trigger');
+            const oldBtn = document.getElementById('done-btn');
+
+            // Show pencil ONLY on the final page (int4)
             if(pencil) pencil.style.display = (pageId === 'int4') ? 'flex' : 'none';
+            
+            // Force the "Done Drawing" button to stay hidden
+            if(oldBtn) oldBtn.style.display = 'none'; 
         }
     }, 1000);
 }
