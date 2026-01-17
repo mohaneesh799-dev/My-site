@@ -218,10 +218,13 @@ button:active { transform: scale(0.9); }
 
 /* THE ZOOM EFFECT */
 .heart-zoom {
-    /* We use !important to override the JavaScript drag position */
-    transform: rotate(-45deg) scale(100) !important; 
-    opacity: 0;
-    transition: transform 1.8s ease-in, opacity 1.5s ease-in !important;
+    /* Huge scale to ensure the screen is 100% red */
+    transform: rotate(-45deg) scale(150) !important; 
+    opacity: 1 !important; /* Keep it visible while it fills the screen */
+    
+    /* Faster 'rushing' transition */
+    transition: transform 1.2s ease-in !important; 
+    z-index: 10000;
 }
 
 /* Ensure the dark room fades out slightly slower for the zoom effect */
