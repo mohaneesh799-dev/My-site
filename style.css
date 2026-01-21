@@ -323,7 +323,7 @@ button:active { transform: scale(0.9); }
     width: 280px;
 }
 
-.modal-content h3 { color: #d63384; margin-bottom: 10px; font-size: 24px; }
+.modal-content h3 { color: #cb1111; margin-bottom: 10px; font-size: 24px; }
 
 .modal-content input {
     width: 80%;
@@ -357,14 +357,30 @@ button:active { transform: scale(0.9); }
     position: fixed;
     pointer-events: none;
     z-index: 10001;
-    font-size: 15px;
-    animation: sparkleFade 1s linear forwards;
+    background: white;
+    border-radius: 50%;
+    /* Layered shadows make the dust look like it's glowing intensely */
+    box-shadow: 
+        0 0 4px #fff, 
+        0 0 8px #ffd1dc, 
+        0 0 12px #ff69b4;
+    animation: stardustFade ease-out forwards;
 }
 
-@keyframes sparkleFade {
-    0% { transform: scale(0) rotate(0deg); opacity: 1; }
-    50% { opacity: 1; transform: scale(1.2) rotate(180deg); }
-    100% { transform: scale(0) rotate(360deg); opacity: 0; }
+@keyframes stardustFade {
+    0% { 
+        transform: scale(0) translateY(0); 
+        opacity: 0; 
+    }
+    20% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
+    100% { 
+        /* Particles drift further and vanish elegantly */
+        transform: scale(0) translateY(-80px) translateX(var(--drift-x)); 
+        opacity: 0; 
+    }
 }
 
 
@@ -475,15 +491,57 @@ button:active { transform: scale(0.9); }
 }
 
 #secret-letter-text {
-    color: white;
-    flex-grow: 1; /* Makes the middle text take up available space */
-    display: flex;
-    align-items: center; /* Vertically centers the typed letters */
-    justify-content: center;
+    /* Use 'Playfair Display' for a formal letter look, or 'Great Vibes' for cursive */
+    font-family: 'Playfair Display', serif; 
     font-size: 1.4rem;
-    line-height: 1.6;
-    margin: 20px 0;
+    line-height: 1.8;
+    text-align: center;
     font-style: italic;
+    
+    /* FIX: Force the color to pure white */
+    color: #ffffff !important; 
+    
+    /* A subtle dark shadow to make white text readable on any background */
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
+    
+    min-height: 200px;
+    margin: 20px 0;
+}
+
+.signature {
+    font-family: 'Great Vibes', cursive;
+    font-size: 2.5rem;
+    color: #ffd1dc;
+    /* Clearer text shadow: sharp white core with a soft pink outer glow */
+    text-shadow: 0 0 2px #fff, 0 0 10px #ff69b4;
+    opacity: 0;
+    display: block;
+    margin-top: 25px;
+    /* Using 'ease-in-out' for a smoother, high-quality entrance */
+    animation: fadeInSignature 2.5s ease-in-out forwards;
+}
+
+@keyframes fadeInSignature {
+    0% { 
+        opacity: 0; 
+        transform: translateY(10px);
+        /* Removed heavy blur to keep it clear throughout the movement */
+    }
+    100% { 
+        opacity: 1; /* Fixed: 1 is the maximum valid opacity */
+        transform: translateY(0);
+    }
+}
+
+/* A soft "bloom" effect on the text as it's typed */
+#secret-letter-text::after {
+    content: '|';
+    color: #ffffff !important;
+    animation: blinkCursor 0.8s infinite;
+    margin-left: 4px;
+}
+@keyframes blinkCursor {
+    50% { opacity: 0; }
 }
 
 
@@ -503,4 +561,69 @@ button:active { transform: scale(0.9); }
     0% { transform: translateY(-10vh) rotate(0deg); opacity: 0; }
     10% { opacity: 0.8; }
     100% { transform: translateY(110vh) rotate(360deg) translateX(100px); opacity: 0; }
+}
+
+
+
+body {
+    background: linear-gradient(135deg, #000000 0%, #1a0a0f 50%, #000000 100%);
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
+}
+
+@keyframes gradientBG {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+
+
+/* 1. AURORA TEXT EFFECT (Add this to your .cursive class or replace it) */
+.cursive {
+    background: linear-gradient(90deg, #ffd1dc, #ffffff, #ffb6c1, #ffd1dc);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: auroraText 5s linear infinite;
+    text-shadow: 0 0 20px rgba(255, 209, 220, 0.4); /* Soft glow */
+    display: inline-block;
+}
+
+@keyframes auroraText {
+    to { background-position: 200% center; }
+}
+
+/* 2. THE BACKGROUND HEARTBEAT (New element) */
+.background-heart {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%) rotate(-45deg);
+    width: 600px;
+    height: 600px;
+    background: rgba(255, 182, 193, 0.05); /* Extremely subtle pink */
+    filter: blur(100px); /* Makes it look like soft light */
+    z-index: -1;
+    pointer-events: none;
+    animation: slowHeartbeat 8s infinite ease-in-out;
+}
+
+@keyframes slowHeartbeat {
+    0%, 100% { transform: translate(-50%, -50%) rotate(-45deg) scale(1); opacity: 0.3; }
+    50% { transform: translate(-50%, -50%) rotate(-45deg) scale(1.15); opacity: 0.5; }
+}
+
+/* 3. CLICK/TOUCH HEARTS */
+.click-heart {
+    position: fixed;
+    pointer-events: none;
+    font-size: 14px;
+    z-index: 10002;
+    animation: floatAway 1.5s ease-out forwards;
+}
+
+@keyframes floatAway {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-120px) translateX(var(--rand-x)) scale(0.5); opacity: 0; }
 }
