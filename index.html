@@ -96,11 +96,16 @@ const wire = document.getElementById('lamp-wire');
 let isDragging = false;
 let startY = 0;
 
-// --- LAMP THREAD LOGIC ---
+// --- UPDATED LAMP THREAD LOGIC ---
 const startDrag = (e) => {
     isDragging = true;
     startY = e.touches ? e.touches[0].clientY : e.clientY;
-    music.play().then(() => music.pause()).catch(e => {});
+
+    music.play().then(() => {
+        music.pause();
+    }).catch(error => {
+        console.log("Audio waiting for stronger interaction:", error);
+    });
 };
 
 const onDrag = (e) => {
@@ -356,3 +361,4 @@ window.addEventListener('touchmove', (e) => {
 
 </body>
 </html>
+
