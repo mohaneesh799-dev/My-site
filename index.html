@@ -96,16 +96,24 @@ const wire = document.getElementById('lamp-wire');
 let isDragging = false;
 let startY = 0;
 
-// --- UPDATED LAMP THREAD LOGIC ---
 const startDrag = (e) => {
     isDragging = true;
     startY = e.touches ? e.touches[0].clientY : e.clientY;
 
-    music.play().then(() => {
-        music.pause();
-    }).catch(error => {
-        console.log("Audio waiting for stronger interaction:", error);
-    });
+    // AUDIO UNLOCK:
+    // We call .play() to tell the browser the user has interacted.
+    const playPromise = music.play();
+
+    if (playPromise !== undefined) {
+        playPromise.then(() => {
+            // Success! The audio is unlocked. 
+            // Now we pause it immediately so it doesn't actually make sound yet.
+            music.pause();
+        }).catch(() => {
+            // If the browser still blocks it, we don't crash.
+            console.log("Audio priming... will play on release.");
+        });
+    }
 };
 
 const onDrag = (e) => {
@@ -139,21 +147,40 @@ window.addEventListener('mouseup', stopDrag);
 window.addEventListener('touchend', stopDrag);
 
 function revealSite() {
+    // 1. Force the audio to play immediately to catch the user gesture
+    music.muted = false;
     music.currentTime = 0;
-    music.muted = false; // Ensures the system volume is actually targeted
-    music.play();
+    
+    // Modern browsers return a promise on .play()
+    const playPromise = music.play();
+
+    if (playPromise !== undefined) {
+        playPromise.catch(error => {
+            // If it still fails, we'll try one more time when they click the next button
+            console.log("Audio block detected, will retry on next click.");
+        });
+    }
+
+    // 2. Immediate visual changes
     handle.style.transform = ""; 
     requestAnimationFrame(() => {
         handle.classList.add('heart-zoom');
         wire.style.opacity = "0";
-        document.querySelector('.instruction').style.opacity = "0";
+        // Safe check for the instruction element
+        const instruction = document.querySelector('.instruction');
+        if(instruction) instruction.style.opacity = "0";
     });
+
+    // 3. Transition to the start page
     setTimeout(() => {
         darkRoom.style.opacity = "0";
         setTimeout(() => {
             darkRoom.style.display = "none";
-            document.getElementById('start-page').classList.add('active');
-            document.getElementById('start-page').style.opacity = "1";
+            const startPage = document.getElementById('start-page');
+            if(startPage) {
+                startPage.classList.add('active');
+                startPage.style.opacity = "1";
+            }
         }, 800);
     }, 1000); 
 }
@@ -362,5 +389,6 @@ window.addEventListener('touchmove', (e) => {
 
 </body>
 </html>
+
 
 
