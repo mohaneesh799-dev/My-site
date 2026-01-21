@@ -474,76 +474,78 @@ button:active { transform: scale(0.9); }
     border: 1px solid rgba(255, 255, 255, 0.4);
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2), 0 0 50px rgba(255, 182, 193, 0.2);
     
-    /* Layout Logic */
+    /* Layout Logic Fix for Mobile */
     display: flex;
     flex-direction: column;
-    justify-content: space-between; /* Pushes items to top, middle, and bottom */
+    justify-content: flex-start; /* Changed from space-between to prevent overlap */
     align-items: center;
     
-    padding: 60px 40px;
+    padding: 40px 20px; /* Reduced padding for mobile screens */
     border-radius: 30px;
-    width: 80%;
+    width: 90%; /* Increased width for better fit on small screens */
     max-width: 600px;
-    min-height: 400px; /* Ensures there is space to move items apart */
-    margin: auto;
+    height: auto; /* Allow box to grow with content */
+    min-height: 450px; 
+    margin: 20px auto; /* Ensures centering and vertical breathing room */
     color: #ffffff;
     text-align: center;
+    overflow-y: auto; /* Adds scroll if text is very long on tiny phones */
 }
 
 #secret-letter-text {
-    /* Use 'Playfair Display' for a formal letter look, or 'Great Vibes' for cursive */
     font-family: 'Playfair Display', serif; 
-    font-size: 1.4rem;
-    line-height: 1.8;
+    font-size: 1.2rem; /* Slightly smaller for mobile scaling */
+    line-height: 1.6;
     text-align: center;
     font-style: italic;
-    
-    /* FIX: Force the color to pure white */
     color: #ffffff !important; 
-    
-    /* A subtle dark shadow to make white text readable on any background */
     text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.9);
     
-    min-height: 200px;
-    margin: 20px 0;
+    /* Box Logic */
+    min-height: 100px; /* Reduced so it doesn't push the signature too far */
+    margin: 15px 0;
+    width: 100%;
 }
 
 .signature {
     font-family: 'Great Vibes', cursive;
-    font-size: 2.5rem;
+    font-size: 2.2rem; /* Adjusted for mobile */
     color: #ffd1dc;
-    /* Clearer text shadow: sharp white core with a soft pink outer glow */
     text-shadow: 0 0 2px #fff, 0 0 10px #ff69b4;
     opacity: 0;
     display: block;
-    margin-top: 25px;
-    /* Using 'ease-in-out' for a smoother, high-quality entrance */
+    margin: 10px 0 20px 0; /* Clear margin above and below */
     animation: fadeInSignature 2.5s ease-in-out forwards;
+}
+
+/* Fix for the Restart Button position */
+#secret-page button {
+    margin-top: auto; /* Pushes button to bottom if space allows */
+    margin-bottom: 10px;
+    flex-shrink: 0; /* Prevents button from squishing */
 }
 
 @keyframes fadeInSignature {
     0% { 
         opacity: 0; 
         transform: translateY(10px);
-        /* Removed heavy blur to keep it clear throughout the movement */
     }
     100% { 
-        opacity: 1; /* Fixed: 1 is the maximum valid opacity */
+        opacity: 1; 
         transform: translateY(0);
     }
 }
 
-/* A soft "bloom" effect on the text as it's typed */
 #secret-letter-text::after {
     content: '|';
     color: #ffffff !important;
     animation: blinkCursor 0.8s infinite;
     margin-left: 4px;
 }
+
 @keyframes blinkCursor {
     50% { opacity: 0; }
 }
-
 
 
 /* This makes the particles turn into rose petals on the secret page */
@@ -627,3 +629,4 @@ body {
     0% { transform: translateY(0) scale(1); opacity: 1; }
     100% { transform: translateY(-120px) translateX(var(--rand-x)) scale(0.5); opacity: 0; }
 }
+
