@@ -140,6 +140,7 @@ window.addEventListener('touchend', stopDrag);
 
 function revealSite() {
     music.currentTime = 0;
+    music.muted = false; // Ensures the system volume is actually targeted
     music.play();
     handle.style.transform = ""; 
     requestAnimationFrame(() => {
@@ -361,4 +362,5 @@ window.addEventListener('touchmove', (e) => {
 
 </body>
 </html>
+
 
