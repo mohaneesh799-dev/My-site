@@ -88,153 +88,152 @@
     </div>
 
     <script>
-        const music = document.getElementById('bg-music');
-        const particleContainer = document.getElementById('particle-container');
-        const darkRoom = document.getElementById('dark-room');
-        const handle = document.getElementById('lamp-handle');
-        const wire = document.getElementById('lamp-wire');
+    const music = document.getElementById('bg-music');
+    const particleContainer = document.getElementById('particle-container');
+    const darkRoom = document.getElementById('dark-room');
+    const handle = document.getElementById('lamp-handle');
+    const wire = document.getElementById('lamp-wire');
 
-        let isDragging = false;
-        let startY = 0;
+    let isDragging = false;
+    let startY = 0;
+    let isSecretMode = false; 
 
-        const startDrag = (e) => {
-            isDragging = true;
-            startY = e.touches ? e.touches[0].clientY : e.clientY;
-            const playPromise = music.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => { music.pause(); }).catch(() => { console.log("Audio priming..."); });
-            }
-        };
+   const startDrag = (e) => {
+        isDragging = true;
+        startY = e.touches ? e.touches[0].clientY : e.clientY;
+        
+        // FIX: Instead of play/pause (which glitches), 
+        // we "prime" the audio by interacting with it once.
+        music.play().then(() => {
+            // If it plays, we keep it running but silent until reveal
+            music.volume = 0; 
+        }).catch(() => { console.log("Waiting for drag to complete..."); });
+    };
 
-        const onDrag = (e) => {
-            if (!isDragging) return;
-            const currentY = e.touches ? e.touches[0].clientY : e.clientY;
-            const delta = Math.max(0, currentY - startY);
-            if (delta < 250) {
-                handle.style.transform = `translateY(${delta}px) rotate(-45deg)`;
-                wire.style.height = (200 + delta) + "px";
-            }
-            if (delta > 160) {
-                isDragging = false;
-                revealSite();
-            }
-        };
-
-        const stopDrag = () => {
-            if (!isDragging) return;
+    const onDrag = (e) => {
+        if (!isDragging) return;
+        const currentY = e.touches ? e.touches[0].clientY : e.clientY;
+        const delta = Math.max(0, currentY - startY);
+        if (delta < 250) {
+            handle.style.transform = `translateY(${delta}px) rotate(-45deg)`;
+            wire.style.height = (200 + delta) + "px";
+        }
+        if (delta > 160) {
             isDragging = false;
-            handle.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-            wire.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
-            handle.style.transform = "translateY(0) rotate(-45deg)";
-            wire.style.height = "200px";
-        };
-
-        handle.addEventListener('mousedown', startDrag);
-        handle.addEventListener('touchstart', startDrag, {passive: false});
-        window.addEventListener('mousemove', onDrag);
-        window.addEventListener('touchmove', onDrag, {passive: false});
-        window.addEventListener('mouseup', stopDrag);
-        window.addEventListener('touchend', stopDrag);
-
-        function revealSite() {
-            music.muted = false;
-            music.currentTime = 0;
-            music.play().catch(error => { console.log("Audio retry needed."); });
-
-            handle.style.transform = ""; 
-            requestAnimationFrame(() => {
-                handle.classList.add('heart-zoom');
-                wire.style.opacity = "0";
-                const instruction = document.querySelector('.instruction');
-                if(instruction) instruction.style.opacity = "0";
-            });
-
-            setTimeout(() => {
-                darkRoom.style.opacity = "0";
-                setTimeout(() => {
-                    darkRoom.style.display = "none";
-                    const startPage = document.getElementById('start-page');
-                    if(startPage) {
-                        startPage.classList.add('active');
-                        startPage.style.opacity = "1";
-                    }
-                }, 800);
-            }, 1000); 
+            revealSite();
         }
+    };
 
-        function nextPage(pageId) {
-            const current = document.querySelector('.panel.active');
-            if(!current) return;
-            current.style.opacity = '0';
+    const stopDrag = () => {
+        if (!isDragging) return;
+        isDragging = false;
+        handle.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+        wire.style.transition = "0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)";
+        handle.style.transform = "translateY(0) rotate(-45deg)";
+        wire.style.height = "200px";
+    };
+
+    handle.addEventListener('mousedown', startDrag);
+    handle.addEventListener('touchstart', startDrag, {passive: false});
+    window.addEventListener('mousemove', onDrag);
+    window.addEventListener('touchmove', onDrag, {passive: false});
+    window.addEventListener('mouseup', stopDrag);
+    window.addEventListener('touchend', stopDrag);
+
+    function revealSite() {
+        music.muted = false;
+        music.volume = 1.0;
+        music.currentTime = 0;
+        music.play().catch(error => { console.log("Audio retry needed."); });
+
+        handle.style.transform = ""; 
+        requestAnimationFrame(() => {
+            handle.classList.add('heart-zoom');
+            wire.style.opacity = "0";
+            const instruction = document.querySelector('.instruction');
+            if(instruction) instruction.style.opacity = "0";
+        });
+
+        setTimeout(() => {
+            darkRoom.style.opacity = "0";
             setTimeout(() => {
-                current.classList.remove('active');
-                const next = document.getElementById(pageId);
-                if(next) {
-                    next.classList.add('active');
-                    next.style.opacity = '1';
-                    const pencil = document.getElementById('pencil-trigger');
-                    if(pencil) pencil.style.display = (pageId === 'int4') ? 'flex' : 'none';
-                    if(pageId === 'secret-page') { triggerSecretReveal(); }
+                darkRoom.style.display = "none";
+                const startPage = document.getElementById('start-page');
+                if(startPage) {
+                    startPage.classList.add('active');
+                    startPage.style.opacity = "1";
                 }
-            }, 1000);
-        }
+            }, 800);
+        }, 1000); 
+    }
 
-        function startJourney() { nextPage('int1'); }
-
-        function checkPassword() {
-            document.getElementById('password-modal').style.display = 'flex';
-            document.getElementById('pass-input').focus();
-        }
-
-        function closeModal() {
-            document.getElementById('password-modal').style.display = 'none';
-            document.getElementById('pass-input').value = '';
-        }
-
-        function submitPass() {
-            const input = document.getElementById('pass-input').value;
-            if (input === "1234") {
-                closeModal();
-                isSecretMode = true;
-                nextPage('secret-page');
-            } else {
-                document.getElementById('password-modal').style.display = 'none';
-                showError("The stars whisper a different password.");
-                document.getElementById('pass-input').value = '';
+    function nextPage(pageId) {
+        if (music.paused) music.play();
+        const current = document.querySelector('.panel.active');
+        if(!current) return;
+        current.style.opacity = '0';
+        setTimeout(() => {
+            current.classList.remove('active');
+            const next = document.getElementById(pageId);
+            if(next) {
+                next.classList.add('active');
+                next.style.opacity = '1';
+                const pencil = document.getElementById('pencil-trigger');
+                if(pencil) pencil.style.display = (pageId === 'int4') ? 'flex' : 'none';
+                if(pageId === 'secret-page') { triggerSecretReveal(); }
             }
-        }
+        }, 1000);
+    }
 
-        function showError(message) {
-            document.getElementById('error-text').innerText = message;
+    function startJourney() {
+        if (music.paused) music.play(); // Direct trigger for mobile
+         nextPage('int1'); }
+
+    function checkPassword() {
+        document.getElementById('password-modal').style.display = 'flex';
+        document.getElementById('pass-input').focus();
+    }
+
+    function closeModal() {
+        document.getElementById('password-modal').style.display = 'none';
+        document.getElementById('pass-input').value = '';
+    }
+
+    function submitPass() {
+        const passInput = document.getElementById('pass-input').value;
+        if (passInput === "1234") {
+            document.getElementById('password-modal').style.display = 'none';
+            nextPage('secret-page');
+        } else {
+            document.getElementById('password-modal').style.display = 'none';
             document.getElementById('error-modal').style.display = 'flex';
         }
+    }
 
-        function closeError() {
-            document.getElementById('error-modal').style.display = 'none';
-            document.getElementById('password-modal').style.display = 'flex';
+    function closeError() {
+        document.getElementById('error-modal').style.display = 'none';
+        document.getElementById('password-modal').style.display = 'flex';
+    }
+
+    function resetToLamp() {
+        const activePanel = document.querySelector('.panel.active');
+        if(activePanel) {
+            activePanel.classList.remove('active');
+            activePanel.style.opacity = '0';
         }
+        darkRoom.style.display = "flex";
+        setTimeout(() => { darkRoom.style.opacity = "1"; }, 50);
+        handle.classList.remove('heart-zoom');
+        handle.style.transform = "translateY(0) rotate(-45deg)";
+        wire.style.height = "200px";
+        wire.style.opacity = "1";
+        document.querySelector('.instruction').style.opacity = "1";
+        music.pause();
+        music.currentTime = 0;
+        isSecretMode = false;
+    }
 
-        function resetToLamp() {
-            const activePanel = document.querySelector('.panel.active');
-            if(activePanel) {
-                activePanel.classList.remove('active');
-                activePanel.style.opacity = '0';
-            }
-            darkRoom.style.display = "flex";
-            setTimeout(() => { darkRoom.style.opacity = "1"; }, 50);
-            handle.classList.remove('heart-zoom');
-            handle.style.transform = "translateY(0) rotate(-45deg)";
-            wire.style.height = "200px";
-            wire.style.opacity = "1";
-            document.querySelector('.instruction').style.opacity = "1";
-            music.pause();
-            music.currentTime = 0;
-            isSecretMode = false;
-        }
-
-        let isSecretMode = false; 
-
-        function createParticle() {
+    function createParticle() {
             const normalSymbols = ['✨', '💖', '🌹', '🤍', '❤️‍🩹'];
             const particle = document.createElement('div');
             if (isSecretMode) {
@@ -251,74 +250,86 @@
             particleContainer.appendChild(particle);
             setTimeout(() => particle.remove(), isSecretMode ? 11000 : 8000);
         }
-        setInterval(createParticle, 400);
 
-        function triggerSecretReveal() {
-            isSecretMode = true; 
-            if (music) music.volume = 0.4;
-            const textElement = document.getElementById('secret-letter-text');
-            textElement.innerHTML = "";
-            const royalMessage = "To My Eternal Queen...| You have found the hidden chamber of my heart. | Every star in the sky whispers your name, | and every beat of my heart is a poem written for you. | This is our sanctuary.";
-            let i = 0;
-            function typeWriterWithEmotion() {
-                if (i < royalMessage.length) {
-                    let char = royalMessage.charAt(i);
-                    if (char === '|') {
-                        setTimeout(() => { i++; typeWriterWithEmotion(); }, 800);
-                    } else {
-                        textElement.innerHTML += char;
-                        i++;
-                        setTimeout(typeWriterWithEmotion, Math.random() * 60 + 40);
-                    }
+    setInterval(createParticle, 400);
+
+    function triggerSecretReveal() {
+        isSecretMode = true; 
+        if (music) music.volume = 0.4;
+        
+        const textElement = document.getElementById('secret-letter-text');
+        textElement.innerHTML = "";
+        
+        const restartBtn = document.querySelector('#secret-page button');
+        if(restartBtn) restartBtn.style.opacity = "0";
+
+        const royalMessage = "To My Eternal Queen...| You have found the hidden chamber of my heart. | Every star in the sky whispers your name, | and every beat of my heart is a poem written for you. | This is our sanctuary.";
+        
+        let i = 0;
+        function typeWriterWithEmotion() {
+            if (i < royalMessage.length) {
+                let char = royalMessage.charAt(i);
+                if (char === '|') {
+                    setTimeout(() => { i++; typeWriterWithEmotion(); }, 800);
                 } else {
-                    setTimeout(() => {
-                        const sig = document.createElement('div');
-                        sig.className = 'signature';
-                        sig.innerHTML = "— I LOVE YOU FOREVER 💖 —";
-                        textElement.appendChild(document.createElement('br'));
-                        textElement.appendChild(sig);
-                    }, 1000);
+                    textElement.innerHTML += char;
+                    i++;
+                    setTimeout(typeWriterWithEmotion, Math.random() * 60 + 40);
                 }
+            } else {
+                // Show Signature and Button
+                setTimeout(() => {
+                    const sig = document.createElement('div');
+                    sig.className = 'signature show';
+                    sig.innerHTML = "— I LOVE YOU FOREVER 💖 —";
+                    textElement.appendChild(document.createElement('br'));
+                    textElement.appendChild(sig);
+                    
+                    if(restartBtn) {
+                        restartBtn.style.transition = "opacity 2s";
+                        restartBtn.style.opacity = "1";
+                    }
+                }, 1000);
             }
-            setTimeout(typeWriterWithEmotion, 1500);
         }
+        setTimeout(typeWriterWithEmotion, 1500);
+    }
 
-        const createStardust = (x, y) => {
-            for (let i = 0; i < 10; i++) {
-                const dust = document.createElement('div');
-                dust.className = 'cursor-sparkle';
-                const size = Math.random() * 4 + 1;
-                dust.style.width = size + 'px'; dust.style.height = size + 'px';
-                dust.style.left = (x + (Math.random() * 20 - 10)) + 'px';
-                dust.style.top = (y + (Math.random() * 20 - 10)) + 'px';
-                dust.style.setProperty('--drift-x', (Math.random() * 80 - 40) + 'px');
-                const duration = Math.random() * 0.5 + 0.8;
-                dust.style.animationDuration = duration + 's';
-                document.body.appendChild(dust);
-                setTimeout(() => dust.remove(), duration * 1000);
-            }
-        };
+    const createStardust = (x, y) => {
+        for (let i = 0; i < 10; i++) {
+            const dust = document.createElement('div');
+            dust.className = 'cursor-sparkle';
+            const size = Math.random() * 4 + 1;
+            dust.style.width = size + 'px'; dust.style.height = size + 'px';
+            dust.style.left = (x + (Math.random() * 20 - 10)) + 'px';
+            dust.style.top = (y + (Math.random() * 20 - 10)) + 'px';
+            dust.style.setProperty('--drift-x', (Math.random() * 80 - 40) + 'px');
+            const duration = Math.random() * 0.5 + 0.8;
+            dust.style.animationDuration = duration + 's';
+            document.body.appendChild(dust);
+            setTimeout(() => dust.remove(), duration * 1000);
+        }
+    };
 
-        window.addEventListener('mousemove', (e) => createStardust(e.clientX, e.clientY));
-        window.addEventListener('touchmove', (e) => createStardust(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+    window.addEventListener('mousemove', (e) => createStardust(e.clientX, e.clientY));
+    window.addEventListener('touchmove', (e) => createStardust(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
 
-        const spawnHearts = (e) => {
-            const x = e.touches ? e.touches[0].clientX : e.clientX;
-            const y = e.touches ? e.touches[0].clientY : e.clientY;
-            for(let i = 0; i < 6; i++) {
-                const heart = document.createElement('div');
-                heart.innerHTML = '🤍';
-                heart.className = 'click-heart';
-                heart.style.left = x + 'px'; heart.style.top = y + 'px';
-                heart.style.setProperty('--rand-x', (Math.random() * 60 - 30) + 'px');
-                document.body.appendChild(heart);
-                setTimeout(() => heart.remove(), 1500);
-            }
-        };
-        window.addEventListener('mousedown', spawnHearts);
-        window.addEventListener('touchstart', spawnHearts, {passive: true});
-
-    </script>
+    const spawnHearts = (e) => {
+        const x = e.touches ? e.touches[0].clientX : e.clientX;
+        const y = e.touches ? e.touches[0].clientY : e.clientY;
+        for(let i = 0; i < 6; i++) {
+            const heart = document.createElement('div');
+            heart.innerHTML = '🤍';
+            heart.className = 'click-heart';
+            heart.style.left = x + 'px'; heart.style.top = y + 'px';
+            heart.style.setProperty('--rand-x', (Math.random() * 60 - 30) + 'px');
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 1500);
+        }
+    };
+    window.addEventListener('mousedown', spawnHearts);
+    window.addEventListener('touchstart', spawnHearts, {passive: true});
+</script>
 
     <div id="password-modal">
         <div class="modal-content">
