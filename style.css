@@ -465,7 +465,6 @@ button:active { transform: scale(0.9); }
         opacity: 0; 
     }
 }
-
 /* Enhanced Glassmorphism for the Secret Box */
 #secret-page .content-box {
     background: rgba(255, 255, 255, 0.15);
@@ -628,5 +627,109 @@ body {
 @keyframes floatAway {
     0% { transform: translateY(0) scale(1); opacity: 1; }
     100% { transform: translateY(-120px) translateX(var(--rand-x)) scale(0.5); opacity: 0; }
+}
+
+
+
+/* 1. SOFT PULSE BACKGROUND - Makes the page feel like it's breathing */
+#secret-page {
+    background: radial-gradient(circle at center, #1a0a0f 0%, #000000 100%);
+    animation: backgroundPulse 8s infinite ease-in-out;
+}
+
+@keyframes backgroundPulse {
+    0%, 100% { opacity: 0.8; }
+    50% { opacity: 1; }
+}
+
+#secret-page .content-box {
+    position: relative;
+    z-index: 10;
+    
+    /* This makes the box see-through like glass */
+    background: rgba(255, 255, 255, 0.1) !important; 
+    backdrop-filter: blur(8px); 
+    -webkit-backdrop-filter: blur(8px);
+    
+    /* Shrink the box so it doesn't cover the whole panda */
+    width: 85%;
+    max-width: 400px;
+    padding: 30px 20px;
+    margin-top: 50px; /* Moves the box down so her face is visible */
+    
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Make the text bright so it's easy to read over the image */
+#secret-letter-text {
+    color: #ffffff;
+    text-shadow: 1px 1px 5px rgba(0,0,0,0.5);
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+/* 3. GHOSTLY SIGNATURE - Appears elegantly at the end */
+.signature {
+    font-family: 'Great Vibes', cursive;
+    font-size: 2.8rem;
+    color: #ffd1dc;
+    text-shadow: 0 0 15px rgba(255, 182, 193, 0.6);
+    opacity: 0;
+    margin-top: 20px;
+    letter-spacing: 5px; /* Starts wide */
+    transition: all 3s ease-in-out;
+}
+
+.signature.show {
+    opacity: 1;
+    letter-spacing: 1px; /* Pulls together as it appears */
+    transform: translateY(-10px);
+}
+
+/* 4. GLOWING CURSOR - A tiny romantic spark */
+#secret-letter-text::after {
+    content: '|';
+    color: #ffb6c1 !important;
+    text-shadow: 0 0 10px #ff69b4;
+    animation: blinkCursor 0.8s infinite;
+}
+
+@keyframes blinkCursor { 50% { opacity: 0; } }
+
+
+#secret-letter-text {
+    color: #f0f0f0 !important;
+    font-weight: 300;
+    letter-spacing: 1px;
+    /* Soft glowing text */
+    text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+}
+
+
+.bg-panda-pic {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    /* This ensures the whole panda is visible */
+    width: auto;
+    height: 90%; 
+    max-width: 100%;
+    
+    opacity: 0.5; /* Makes it visible but soft */
+    z-index: 1;
+    pointer-events: none;
+    object-fit: contain;
+}
+
+/* Ensure the content box sits on top of the panda */
+#secret-page .content-box {
+    position: relative;
+    z-index: 10; 
+    background: rgba(255, 255, 255, 0.05); /* Very light glass look */
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
